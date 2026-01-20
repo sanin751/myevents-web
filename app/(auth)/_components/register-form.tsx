@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { RegisterData, registerSchema } from "../schema";
+import { handleRegister } from "@/lib/actions/auth-action";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { email } from "zod";
 
@@ -14,12 +15,13 @@ export default function RegisterForm() {
         }
       );
        const OnSubmit=async(data:RegisterData)=>{
-        alert(data.email)
+        const res = await handleRegister(data)
+        console.log(res)
         router.push("/login")
        }
   return (
     <div className="min-h-screen flex items-center justify-center bg-white" style={{ backgroundImage: "url('/images/bgg.png')" }}>
-      <div className="w-full max-w-sm text-center">
+      <form className="w-full max-w-sm text-center">
 
       
         <div className="mb-6">
@@ -131,7 +133,7 @@ export default function RegisterForm() {
             Already have an account?
           </Link>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
