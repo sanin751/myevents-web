@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { LoginData, loginSchema } from "../schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { handleLogin } from "@/lib/actions/auth-action";
 
 export default function LoginForm() {
     const router=useRouter()
@@ -13,12 +14,13 @@ export default function LoginForm() {
     }
   );
    const OnSubmit=async(data:LoginData)=>{
-    alert(data.email)
+    const res = await handleLogin(data) 
+    console.log(res)
     router.push("/auth/dashboard")
    }
   return (
     <div className="min-h-screen flex items-center justify-center bg-white" style={{ backgroundImage: "url('/images/bgg.png')" }} >
-      <div className="w-full max-w-sm text-center">
+      <form className="w-full max-w-sm text-center" onSubmit={handleSubmit(OnSubmit)}>
         
         
         <div className="mb-8">
@@ -82,7 +84,7 @@ export default function LoginForm() {
           <span>About</span>
           <span>Help</span>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
