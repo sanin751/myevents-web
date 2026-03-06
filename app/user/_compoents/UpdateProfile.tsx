@@ -1,180 +1,222 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import {  useState, useRef } from "react";
-import Image from "next/image";
-// import { toast } from "react-toastify";
+import { useState, useRef } from "react";
 import { handleUpdateProfile } from "@/lib/actions/auth-action";
-
-import { z } from "zod";
 import { UpdateUserData, updateUserSchema } from "../schema";
 import { UserEditData } from "@/app/admin/users/schema";
 
 export default function UpdateUserForm() {
-    const { register, handleSubmit, control, formState: { errors, isSubmitting } } =
-        useForm<UpdateUserData>({
-            resolver: zodResolver(updateUserSchema),
-            values: {
-                firstName: '',
-                lastName:  '',
-                // email: '',
-            }
-        });
 
-    const [error, setError] = useState<string | null>(null);
-    const [previewImage, setPreviewImage] = useState<string | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<UpdateUserData>({
+    resolver: zodResolver(updateUserSchema),
+    values: {
+      firstName: "",
+      lastName: "",
+    },
+  });
 
-    const handleImageChange = (file: File | undefined, onChange: (file: File | undefined) => void) => {
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewImage(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        } else {
-            setPreviewImage(null);
-        }
-        onChange(file);
-    };
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleDismissImage = (onChange?: (file: File | undefined) => void) => {
-        setPreviewImage(null);
-        onChange?.(undefined);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    };
+  const handleImageChange = (
+    file: File | undefined,
+    onChange: (file: File | undefined) => void
+  ) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(null);
+    }
+    onChange(file);
+  };
 
-    const onSubmit = async (data: UserEditData) => {
-        setError(null);
-        try {
-            const formData = new FormData();
-            if(data.firstName){
-                formData.append('firstName', data.firstName);
-            }
-            if(data.lastName){
-                formData.append('lastName', data.lastName);
-            }
-            // formData.append('email', data.email);
-            if (data.profile) {
-                formData.append('profile', data.profile);
-            }
-            console.log("Last Name", data.lastName);
+  const handleDismissImage = (onChange?: (file: File | undefined) => void) => {
+    setPreviewImage(null);
+    onChange?.(undefined);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
-            console.log([...formData.entries()]);
-            const response = await handleUpdateProfile(formData);
-            
-            if (!response.success) {
-                throw new Error(response.message || 'Update profile failed');
-            }
+  const onSubmit = async (data: UserEditData) => {
+    setError(null);
+    setSuccess(null);
 
-            handleDismissImage();
-            // toast.success('Profile updated successfully');
-        } catch (error: Error | any) {
-            // toast.error(error.message || 'Profile update failed');
-            setError(error.message || 'Profile update failed');
-        }
-    };
+    try {
+      const formData = new FormData();
 
-    return (
-        <div>
-            <h1 className="text-2xl font-bold mb-4">Profile Page</h1>
-            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-                {error && (
-                    <p className="text-sm text-red-600">{error}</p>
+      if (data.firstName) formData.append("firstName", data.firstName);
+      if (data.lastName) formData.append("lastName", data.lastName);
+      if (data.profile) formData.append("profile", data.profile);
+
+      const response = await handleUpdateProfile(formData);
+
+      if (!response.success) {
+        throw new Error(response.message || "Update profile failed");
+      }
+
+      handleDismissImage();
+
+      setSuccess("Profile updated successfully");
+
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
+
+    } catch (error: any) {
+      setError(error.message || "Profile update failed");
+    }
+  };
+
+  return (
+    <main className="min-h-screen flex items-center justify-center px-6 py-16 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+
+      <div className="w-full max-w-md">
+
+        <h1 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          Update Profile
+        </h1>
+
+        <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-xl">
+
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+
+            {error && (
+              <p className="text-red-400 text-sm">{error}</p>
+            )}
+
+            {success && (
+              <p className="text-green-400 text-sm">{success}</p>
+            )}
+
+            {/* Profile Preview */}
+            <div className="flex justify-center">
+              {previewImage ? (
+                <div className="relative">
+                  <img
+                    src={previewImage}
+                    className="w-28 h-28 rounded-full object-cover border-4 border-purple-500"
+                  />
+
+                  <Controller
+                    name="profile"
+                    control={control}
+                    render={({ field: { onChange } }) => (
+                      <button
+                        type="button"
+                        onClick={() => handleDismissImage(onChange)}
+                        className="absolute top-0 right-0 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-600"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  />
+                </div>
+              ) : (
+                <div className="w-28 h-28 rounded-full bg-white/10 flex items-center justify-center text-gray-400 border border-white/10">
+                  No Image
+                </div>
+              )}
+            </div>
+
+            {/* Upload */}
+            <div>
+              <label className="block text-sm text-gray-300 mb-2">
+                Profile Image
+              </label>
+
+              <Controller
+                name="profile"
+                control={control}
+                render={({ field: { onChange } }) => (
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp"
+                    onChange={(e) =>
+                      handleImageChange(e.target.files?.[0], onChange)
+                    }
+                    className="w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4
+                      file:rounded-lg file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-purple-600 file:text-white
+                      hover:file:bg-purple-700"
+                  />
                 )}
+              />
 
-                {/* Profile Image Display */}
-                <div className="mb-4">
-                    {previewImage ? (
-                    <div className="relative w-24 h-24">
-                        <img
-                            src={previewImage}
-                            alt="Profile Image Preview"
-                            className="w-24 h-24 rounded-full object-cover"
-                        />
-                        <Controller
-                            name="profile"
-                            control={control}
-                            render={({ field: { onChange } }) => (
-                                <button
-                                    type="button"
-                                    onClick={() => handleDismissImage(onChange)}
-                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
-                                >
-                                    ✕
-                                </button>
-                            )}
-                        />
-                    </div>
-                ) : (
-                    <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-                        <span className="text-gray-600">No Image</span>
-                    </div>
-                )}
-                </div>
+              {errors.profile && (
+                <p className="text-red-400 text-sm mt-1">
+                  {errors.profile.message}
+                </p>
+              )}
+            </div>
 
-                {/* Profile Image Input */}
-                <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Profile Image</label>
-                    <Controller
-                        name="profile"
-                        control={control}
-                        render={({ field: { onChange } }) => (
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                onChange={(e) => handleImageChange(e.target.files?.[0], onChange)}
-                                accept=".jpg,.jpeg,.png,.webp"
-                            />
-                        )}
-                    />
-                    {errors.profile && <p className="text-sm text-red-600">{errors.profile.message}</p>}
-                </div>
-                {/* <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="email">Email</label>
-                    <input
-                        id="email"
-                        type="email"
-                        {...register("email")}
-                        className="w-full border border-gray-300 rounded px-3 py-2"
-                    />
-                    {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
-                </div> */}
-                {/* First Name Input */}
-                <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="firstName">First Name</label>
-                    <input
-                        id="firstName"
-                        type="text"
-                        {...register("firstName")}
-                        className="w-full border border-gray-300 rounded px-3 py-2"
-                    />
-                    {errors.firstName && <p className="text-sm text-red-600">{errors.firstName.message}</p>}
-                </div>
+            {/* First Name */}
+            <div>
+              <label className="block text-sm text-gray-300 mb-1">
+                First Name
+              </label>
 
-                {/* Last Name Input */}
-                <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="lastName">Last Name</label>
-                    <input
-                        id="lastName"
-                        type="text"
-                        {...register("lastName")}
-                        className="w-full border border-gray-300 rounded px-3 py-2"
-                    />
-                    {errors.lastName && <p className="text-sm text-red-600">{errors.lastName.message}</p>}
-                </div>
+              <input
+                type="text"
+                {...register("firstName")}
+                className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/10 text-white focus:outline-none focus:border-purple-500"
+              />
 
-                {/* Submit Button */}
-                <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                >
-                    {isSubmitting ? 'Updating...' : 'Update Profile'}
-                </button>
-            </form>
+              {errors.firstName && (
+                <p className="text-red-400 text-sm">
+                  {errors.firstName.message}
+                </p>
+              )}
+            </div>
+
+            {/* Last Name */}
+            <div>
+              <label className="block text-sm text-gray-300 mb-1">
+                Last Name
+              </label>
+
+              <input
+                type="text"
+                {...register("lastName")}
+                className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/10 text-white focus:outline-none focus:border-purple-500"
+              />
+
+              {errors.lastName && (
+                <p className="text-red-400 text-sm">
+                  {errors.lastName.message}
+                </p>
+              )}
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-3 rounded-lg font-semibold text-white
+              bg-gradient-to-r from-blue-600 to-purple-600
+              hover:from-blue-700 hover:to-purple-700
+              transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50"
+            >
+              {isSubmitting ? "Updating..." : "Update Profile"}
+            </button>
+
+          </form>
         </div>
-    );
+      </div>
+    </main>
+  );
 }

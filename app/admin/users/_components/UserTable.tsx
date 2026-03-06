@@ -109,7 +109,8 @@ const UserTable = (
     const onDelete = async () => {
         console.log(deleteId);
         try {
-            await handleDeleteUser(deleteId!);
+            const res =await handleDeleteUser(deleteId!);
+            console.log(res);
             toast.success("User deleted successfully");
         } catch (err: Error | any) {
             toast.error(err.message || "Failed to delete user");

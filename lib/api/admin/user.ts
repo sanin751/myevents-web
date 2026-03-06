@@ -49,6 +49,22 @@ export const getAllUsers = async (
             || error.message || 'Get all users failed');
     }
 }
+export const getAllBanquets = async (
+    page: number, size: number, search?: string
+) => {
+    try {
+        const response = await axios.get(
+            API.ADMIN.BANQUETS.GETALL,
+            {
+                params: { page, size, search }
+            }
+        );
+        return response.data;
+    } catch (error: Error | any) {
+        throw new Error(error.response?.data?.message
+            || error.message || 'Get all banquets failed');
+    }
+}
 
 export const updateUser = async (id: string, updateData: any) => {
     try {

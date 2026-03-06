@@ -28,7 +28,7 @@ export default function Header() {
                                 M
                             </span>
                             <span className="text-base font-semibold tracking-tight group-hover:opacity-80 transition-opacity">
-                                MyApp
+                                MyEvents
                             </span>
                         </Link>
                     </div>
