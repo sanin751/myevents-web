@@ -1,5 +1,5 @@
 "use server";
-import { createUser, deleteUser, getAllUsers, getUserById, updateUser } from "@/lib/api/admin/user";
+import { createUser, deleteUser, getAllBanquets, getAllUsers, getUserById, updateUser } from "@/lib/api/admin/user";
 import { revalidatePath } from 'next/cache';
 
 export const handleCreateUser = async (data: FormData) => {
@@ -47,6 +47,34 @@ export const handleGetAllUsers = async (
         return {
             success: false,
             message: error.message || 'Get all users action failed'
+        }
+    }
+}
+
+export const handleGetAllBanquets = async (
+    page: string, size: string, search?: string
+) => {
+    try {
+        const currentPage = parseInt(page) || 1;
+        const currentSize = parseInt(size) || 10;
+
+        const response = await getAllBanquets(currentPage, currentSize, search);
+        if (response.success) {
+            return {
+                success: true,
+                message: 'Get all banquets successful',
+                data: response.data,
+                pagination: response.pagination
+            }
+        }
+        return {
+            success: false,
+            message: response.message || 'Get all banquets failed'
+        }
+    } catch (error: Error | any) {
+        return {
+            success: false,
+            message: error.message || 'Get all banquets action failed'
         }
     }
 }

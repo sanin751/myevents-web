@@ -9,10 +9,12 @@ export const API = {
     ADMIN:{
         USER:{
             CREATE: '/api/admin/users/',
-            GETALL: "/api/admin/users",
-            GET_ONE: (userId: string) => `/api/admin/users/${userId}`,
-            UPDATE: (email: string) => `/api/admin/users/${email}`,
-            DELETE: (userId: string) => `/api/admin/users/${userId}`,
-        }
+            GETALL: "/api/admin",
+            GET_ONE: (userId: string) => `/api/admin/${userId}`,
+            UPDATE: (email: string) => `/api/admin/${email}`,
+            DELETE: (userId: string) => `/api/admin/${userId}`,
+        },BANQUETS:{
+            GETALL: "/api/admin/banquets",
+            DELETE: (id: string) => `/api/admin/banquets/${id}`}
     }
 }
